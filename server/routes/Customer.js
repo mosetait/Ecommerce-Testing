@@ -1,5 +1,5 @@
 const express = require("express");
-const { isAuth, isCustomer } = require("../config/passport");
+const { isAuth, isCustomer } = require("../middlewares/auth");
 const { contactUs, registerComplaint, fetchSingleComplaint, repairRequest, fetchSingleRequest, popupForm } = require("../controllers/ContactUs");
 const { createProductReview } = require("../controllers/Customer/Review");
 const { addToCart, deleteFromCart, increaseQuantity, decreaseQuantity, fetchCustomerCart } = require("../controllers/Customer/Cart");
@@ -66,7 +66,9 @@ router.route("/backend/delete-address").delete(isAuth , isCustomer , deleteAddre
 router.route("/backend/get-all-products").get(getAllProducts);
 router.route("/backend/get-single-product/:id").get(getProductDetails);
 
+
 // popup form
 router.route("/backend/popup-form").post(popupForm);
+
 
 module.exports = router

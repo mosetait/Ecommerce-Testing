@@ -112,7 +112,7 @@ exports.deleteFromCart = asyncHandler(async (req, res, next) => {
 
     // Calculate total price
     const totalPrice = cart.items.reduce((total, item) => {
-        const productPrice = Number(item.product.variations[0].priceIncludingGst);
+        const productPrice = Number(item.product.cuttedPrice);
         return total + productPrice * item.quantity;
     }, 0);
 

@@ -1,5 +1,5 @@
 const express = require("express");
-const { isAuth, isAdmin } = require("../config/passport");
+const { isAuth, isAdmin } = require("../middlewares/auth");
 const { createCategory, updateCategory, deleteCategory, createSubCategory, updateSubCategory, deleteSubCategory, allCategories } = require("../controllers/Admin/Category");
 const { createProduct, updateProductDetails, deleteProduct, allProducts, productDetails, updateProductImages } = require("../controllers/Admin/Product");
 const { createNotification, deleteNotification, updateNotification } = require("../controllers/Admin/Notification");

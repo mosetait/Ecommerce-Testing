@@ -1,7 +1,7 @@
 const express = require("express");
 const { processPayment, checkPaymentStatus } = require("../controllers/Customer/Payment");
 const { createOrderAndPayment, fetchCustomerOrders } = require("../controllers/Customer/Order");
-const { isAuth, isCustomer } = require("../config/passport");
+const { isAuth, isCustomer } = require("../middlewares/auth");
 const router = express.Router();
 
 

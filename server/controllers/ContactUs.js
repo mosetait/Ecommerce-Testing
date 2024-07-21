@@ -390,12 +390,14 @@ exports.fetchSingleRequest = asyncHandler( async (req,res) => {
 
 
 
+
+
+
 // popup form 
 exports.popupForm = asyncHandler( async (req,res) => {
 
     const {fullName , email , phone , inquiry} = req.body.formData;
     
-
     if(!fullName || !email || !phone || !inquiry){
         return res.status(401).json({
             message: "Please provide all details",
@@ -419,7 +421,7 @@ exports.popupForm = asyncHandler( async (req,res) => {
                 "Inquiry | Moseta website",
                 emailTemplate
             );
-            
+            console.log(mailResponse);
         } catch (error) {
             console.log("Error occurred while sending email: ", error);
             throw error;

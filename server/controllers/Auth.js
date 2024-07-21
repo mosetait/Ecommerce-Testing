@@ -7,7 +7,9 @@ const Cart = require("../models/Cart");
 const { accountCreationEmail } = require("../mailTemplate/accountCreation");
 const mailSender = require("../utils/mailSender");
 const mongoose = require("mongoose")
-
+const jwt = require("jsonwebtoken")
+const validator = require("validator")
+const bcrypt = require("bcrypt");
 
 const generateOtp = () => {
     return Math.floor(1000 +  Math.random() * 9000);
@@ -177,21 +179,77 @@ exports.signUp = asyncHandler(async (req, res) => {
 // Login Customer
 exports.customerLogin = async (req, res, next) => {
     
-    passport.authenticate('customer-local', (err, user, info) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: 'Internal Server Error1', error: err });
+    try {
+
+        const { email, password } = req.body;
+    
+        if (!validator.isEmail(email) || !password) {
+          return res.status(401).json({
+            message: 'Please provide a valid Email and Password',
+            success: false,
+          });
         }
+    
+        const user = await Customer.findOne({email}).select("+password")
+        .populate({ path: "complaints" , populate: {path: "product"} })
+        .populate({ path: "repairRequests" , populate: {path: "product"} })
+        .populate({path: "cart"});
+    
         if (!user) {
-            return res.status(401).json({ message: 'Authentication failed', error: info.message });
+          return res.status(404).json({
+            message: 'Invalid Email or Password',
+            success: false,
+          });
         }
-        req.logIn(user, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Internal Server Error2', error: err });
+    
+        if (await bcrypt.compare(password, user.password)) {
+  
+          const token = jwt.sign(
+            {
+              email: user.email,
+              id: user._id,
+              role: user.role,
+            },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: '72h',
             }
-            return res.status(200).json({ message: 'Authentication successful', user });
+          );
+    
+
+          user.token = token;
+          user.password = undefined;
+    
+          const options = {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+            sameSite: 'None', // Adjust based on your application's needs
+            secure: true, // Set to true in production if served over HTTPS
+          };
+    
+          res.cookie('token', token, options).status(200).json({
+            message: 'Logged in successfully',
+            success: true,
+            token,
+            user,
+          });
+  
+        } 
+        else {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid Email or Password',
+          });
+        }
+      } 
+      catch (error) {
+        console.error(error);
+        return res.status(500).json({
+          success: false,
+          message: 'Login failure, please try again',
         });
-    })(req, res, next);
+      }
+
 };
 
 
@@ -205,13 +263,33 @@ exports.customerLogin = async (req, res, next) => {
 // Logout
 exports.logout = async (req, res) => {
 
-  req.logout((err) => {
-    if (err) {
-        return res.status(500).json({ message: 'Internal Server Error', error: err });
-    }
-    res.status(200).json({ message: 'Logout successful' });
-  });
+  try {
 
+    let { token } = req.cookies;
+
+    if (token !== "") {
+      // Clear the 'token' cookie
+      res.clearCookie('token');
+
+      return res.status(200).json({
+        success: true,
+        message: 'Logged out successfully',
+      });
+    } 
+    else {
+      return res.status(200).json({
+        success: false,
+        message: 'You are already logged out.',
+      });
+    }
+  } 
+  catch (error) {
+    console.log(error);
+    return res.status(401).json({
+      message: 'Error while logging out',
+      success: false,
+    });
+  }
 };
 
 
@@ -324,20 +402,74 @@ exports.signUpAdmin = asyncHandler(async (req, res) => {
 
 // Login Admin
 exports.adminLogin = async (req, res, next) => {
-    passport.authenticate('admin-local', (err, user, info) => {
-        if (err) {
-            return res.status(500).json({ message: 'Internal Server Error', error: err });
+
+    try {
+
+        const { email, password } = req.body;
+    
+        if (!validator.isEmail(email) || !password) {
+          return res.status(401).json({
+            message: 'Please provide a valid Email and Password',
+            success: false,
+          });
         }
+    
+        const user = await Admin.findOne({email}).select("+password")
+    
         if (!user) {
-            return res.status(401).json({ message: 'Authentication failed', error: info.message });
+          return res.status(404).json({
+            message: 'Invalid Email or Password',
+            success: false,
+          });
         }
-        req.logIn(user, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Internal Server Error', error: err });
+    
+        if (await bcrypt.compare(password, user.password)) {
+  
+          const token = jwt.sign(
+            {
+              email: user.email,
+              id: user._id,
+              role: user.role,
+            },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: '72h',
             }
-            return res.status(200).json({ message: 'Authentication successful', user });
+          );
+    
+          user.token = token;
+          user.password = undefined;
+    
+          const options = {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+            sameSite: 'None', // Adjust based on your application's needs
+            secure: true, // Set to true in production if served over HTTPS
+          };
+    
+          res.cookie('token', token, options).status(200).json({
+            message: 'Logged in successfully',
+            success: true,
+            token,
+            user,
+          });
+  
+        } 
+        else {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid Email or Password',
+          });
+        }
+      } 
+      catch (error) {
+        console.error(error);
+        return res.status(500).json({
+          success: false,
+          message: 'Login failure, please try again',
         });
-    })(req, res, next);
+      }
+
 };
 
 
@@ -350,15 +482,43 @@ exports.adminLogin = async (req, res, next) => {
 // Load User Controller
 exports.loadUser = async (req, res) => {
     
-    if (req.isAuthenticated()) {
-        return res.status(200).json({
-            success: true,
-            user: req.user
-        });
-    } else {
-        return res.status(401).json({
-            success: false,
-            message: 'Unauthorized'
-        });
+  try {
+
+    const { id , role } = req.user; // Assuming the user ID is stored in the token payload
+    let user;
+
+    if(role == "admin"){
+        user = await Admin.findById(id).select('-password'); 
     }
+    else if (role == "customer"){
+        user = await Customer.findById(id).select('-password'); 
+    }
+    else{
+        return res.status(401).json({
+            message: "Invalid Role",
+            success: false
+        })
+    }
+
+
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `${role == 'customer' ? 'customer' : 'admin' } is not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting user information',
+    });
+  }
+
 };
