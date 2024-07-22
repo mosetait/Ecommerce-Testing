@@ -13,6 +13,7 @@ const { createCarousel, updateCarousel, deleteCarousel, updateCarouselOrder } = 
 const { dashboardData, allOrders, orderDetails } = require("../controllers/Admin/Dashboard");
 const { allRequests, singleRequest, updateRequestStatus, deleteRequest, allComplaints, singleComplaint, updateComplaintStatus, deleteComplaint } = require("../controllers/Admin/ReviewAndComplaints");
 const { allPayments } = require("../controllers/Admin/Payment");
+const { allInquiries, singleInquiry, updateInquiry, deleteInquiry } = require("../controllers/Admin/PopupForm");
 const router = express.Router();
 
 
@@ -104,6 +105,12 @@ router.route("/backend/delete-complaint/:id").delete(isAuth , isAdmin , deleteCo
 // payments
 router.route("/backend/all-payments").get(isAuth , isAdmin , allPayments)
 
+
+// popup form inquiries
+router.route("/backend/all-inquiries").get(isAuth , isAdmin , allInquiries);
+router.route("/backend/inquiry/:id").get(isAuth , isAdmin , singleInquiry);
+router.route("/backend/update-inquiry").put(isAuth , isAdmin , updateInquiry);
+router.route("/backend/delete-inquiry/:id").delete(isAuth , isAdmin , deleteInquiry);
 
 
 

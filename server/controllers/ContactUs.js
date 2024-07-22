@@ -3,6 +3,7 @@ const { contactUsEmail } = require("../mailTemplate/contactUs");
 const { complaintRegistrationEmail } = require("../mailTemplate/complaintRegistered");
 const asyncHandler = require("../middlewares/asyncHandler");
 const Complaint = require("../models/Complaint");
+const PopupForm = require("../models/PopupForm");
 const Customer = require("../models/Customer");
 const Product = require("../models/Product");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
@@ -404,6 +405,10 @@ exports.popupForm = asyncHandler( async (req,res) => {
             success: false
         })
     }
+
+    const newPopupForm = await PopupForm.create({
+        fullName,email,phone,inquiry
+    });
 
     const emailTemplate = `Inquiry From Moseta.in<br>
     <br>
