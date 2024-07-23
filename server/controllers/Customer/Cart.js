@@ -18,7 +18,7 @@ exports.addToCart = asyncHandler(async (req, res, next) => {
     }
 
     // Retrieve customer and cart
-    let customer = await Customer.findById({ _id: req.user._id }).populate('cart');
+    let customer = await Customer.findById({ _id: req.user.id }).populate('cart');
 
     if (!customer) {
         return next(new ErrorHandler("Customer Not Found", 404));
@@ -87,7 +87,7 @@ exports.deleteFromCart = asyncHandler(async (req, res, next) => {
     }
 
     // Retrieve customer and cart
-    let customer = await Customer.findById({ _id: req.user._id }).populate('cart');
+    let customer = await Customer.findById({ _id: req.user.id }).populate('cart');
 
     if (!customer) {
         return next(new ErrorHandler("Customer Not Found", 404));
@@ -135,7 +135,7 @@ exports.increaseQuantity = asyncHandler(async (req, res, next) => {
     }
 
     // Retrieve customer and cart
-    let customer = await Customer.findById(req.user._id).populate('cart');
+    let customer = await Customer.findById(req.user.id).populate('cart');
 
     if (!customer) {
         return next(new ErrorHandler("Customer Not Found", 404));
@@ -187,7 +187,7 @@ exports.decreaseQuantity = asyncHandler(async (req, res, next) => {
     }
 
     // Retrieve customer and cart
-    let customer = await Customer.findById(req.user._id).populate('cart');
+    let customer = await Customer.findById(req.user.id).populate('cart');
 
     if (!customer) {
         return next(new ErrorHandler("Customer Not Found", 404));
