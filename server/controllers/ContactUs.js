@@ -431,7 +431,7 @@ exports.popupForm = asyncHandler(async (req, res) => {
     // Send email
     try {
         const mailResponse = await mailSender(
-            "dhyanisaksham3@gmail.com",
+            "dhyanisaksham3@gmail.com, priyankarajput@moseta.in",
             "Inquiry | Moseta website",
             emailTemplate
         );

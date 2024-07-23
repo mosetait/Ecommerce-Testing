@@ -120,7 +120,7 @@ app.use("*", (req, res, next) => {
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "https://moseta.in/",
         methods: ["GET", "POST"],
         credentials: true
     }
