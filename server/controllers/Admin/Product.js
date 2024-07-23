@@ -401,7 +401,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 // Get all products
 exports.allProducts = asyncHandler( async (req,res) => {
 
-    const products = await Product.find().populate({path: "category"});
+    const products = await Product.find().populate({path: "category"}).sort({ createdAt: -1 });
 
     return res.status(200).json({
         message: "Products fetched successfullly",

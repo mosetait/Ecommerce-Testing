@@ -73,8 +73,8 @@ exports.checkPaymentStatus = asyncHandler(async (req, res) => {
         if (payment.status === "captured") {
             const cart = await Cart.findOne({ customer: userId }).populate('items.product');
 
-            // Create new order
-            const order = new Order({
+            // Create new newOrder
+            const newOrder = new Order({
                 customer: userId,
                 orderItems: cart.items.map(item => ({
                     product: item.product._id,
@@ -91,7 +91,12 @@ exports.checkPaymentStatus = asyncHandler(async (req, res) => {
                 paymentStatus: "paid",
                 orderStatus: "processing"
             });
-            await order.save();
+            await newOrder.save();
+
+
+            // Emit the new newOrder form event
+            const io = req.app.get('io');
+            io.emit('newOrder', newOrder);
 
 
             // Update the Payment model
@@ -100,9 +105,9 @@ exports.checkPaymentStatus = asyncHandler(async (req, res) => {
                 { status: payment.status, signature: signature, paymentId: paymentId }
             );
 
-            // Add order to customer
+            // Add newOrder to customer
             const customer = await Customer.findOne({ _id: userId });
-            customer.orders.push(order._id);
+            customer.orders.push(newOrder._id);
             await customer.save();
 
             // Clear cart
@@ -119,7 +124,7 @@ exports.checkPaymentStatus = asyncHandler(async (req, res) => {
                     orderPlacedEmail({  
                         name: customer.firstName , 
                         shippingInfo: deliveryAddress ,
-                        orderId: order.orderId
+                        orderId: newOrder.orderId
                     })
                 );
                 
@@ -133,7 +138,7 @@ exports.checkPaymentStatus = asyncHandler(async (req, res) => {
                 method: payment.method,
                 amount: payment.amount,
                 currency: payment.currency,
-                orderId: order._id
+                orderId: newOrder._id
             });
         } else {
             return res.json({

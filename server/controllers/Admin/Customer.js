@@ -123,7 +123,7 @@ exports.deleteCustomer = asyncHandler(async (req, res, next) => {
 // get all customers
 exports.allCustomers = asyncHandler( async (req,res) => {
 
-    const customers = await Customer.find();
+    const customers = await Customer.find().sort({ createdAt: -1 });
 
     return res.status(200).json({
         message: "Customers fetched successfully",

@@ -25,7 +25,7 @@ const mongoose = require("mongoose")
 // Get All Customer --ADMIN
 exports.getAllCustomers = asyncHandler(async (req, res, next) => {
 
-    const customers = await Customer.find();
+    const customers = await Customer.find().sort({ createdAt: -1 });
 
     return res.status(200).json({
         success: true,

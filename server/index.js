@@ -20,7 +20,7 @@ const path = require("path");
 const { StatusCodes } = require("http-status-codes");
 
 // Configuration
-dotenv.config({path: "/.env"});
+dotenv.config();
 
 
 // Database connection
@@ -46,11 +46,16 @@ app.use(
     helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "https://checkout.razorpay.com"],
             imgSrc: ["'self'", "data:", "https://img.youtube.com", "https://res.cloudinary.com", "https://rukminim1.flixcart.com"],
-            frameSrc: ["'self'", "https://www.youtube.com"]
+            frameSrc: ["'self'", "https://www.youtube.com", "https://api.razorpay.com"],
+            connectSrc: ["'self'", "https://lumberjack-cx.razorpay.com"]
         },
     })
 );
+
+
+
 
 
 
@@ -83,7 +88,7 @@ const admin = require("./routes/Admin");
 const customer = require("./routes/Customer");
 const common = require("./routes/Common");
 const paymentAndOrders = require("./routes/PaymentAndOrders");
-const { ErrorResponse } = require('./middlewares/errorMiddleware');
+const { ErrorResponse } = require('./middlewares/error');
 
 app.use("/api/v1", auth);
 app.use("/api/v1", admin);

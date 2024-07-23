@@ -138,7 +138,7 @@ console.log(review);
 exports.allReviews = asyncHandler( async (req,res) => {
 
 
-    const reviews = await RatingReview.find()
+    const reviews = await RatingReview.find().sort({ createdAt: -1 })
     .populate("customer")
     .populate("product")
 

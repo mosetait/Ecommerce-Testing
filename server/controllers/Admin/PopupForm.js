@@ -61,7 +61,7 @@ console.log(req.params)
 // get all inquiries
 exports.allInquiries = asyncHandler( async (req,res) => {
 
-    const inquiries = await PopupForm.find();
+    const inquiries = await PopupForm.find().sort({ createdAt: -1 });
 
     return res.status(200).json({
         success: true,

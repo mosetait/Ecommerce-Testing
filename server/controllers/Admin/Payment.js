@@ -5,7 +5,7 @@ const asyncHandler = require("../../middlewares/asyncHandler");
 
 exports.allPayments = asyncHandler( async (req,res) => {
 
-    const payments = await Payment.find()
+    const payments = await Payment.find().sort({ createdAt: -1 })
     .populate("customer");
 
 

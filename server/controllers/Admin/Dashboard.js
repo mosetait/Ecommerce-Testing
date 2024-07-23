@@ -5,7 +5,7 @@ const asyncHandler = require("../../middlewares/asyncHandler");
 
 
 
-// fetching data from dashboard
+// fetching data for dashboard
 exports.dashboardData = asyncHandler( async (req,res) => {
 
     const orders = await Order.find();
@@ -27,7 +27,7 @@ exports.dashboardData = asyncHandler( async (req,res) => {
 // fetch all orders
 exports.allOrders = asyncHandler( async (req,res) => {
 
-    const orders = await Order.find();
+    const orders = await Order.find().sort({ createdAt: -1 });
 
     res.status(200).json({
         message: "Main Data fetched successfully",

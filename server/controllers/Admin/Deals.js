@@ -81,7 +81,7 @@ exports.addProductsToDeal = asyncHandler(async (req, res, next) => {
 exports.fetchDeals = asyncHandler( async (req,res) => {
 
 
-    const deals = await Deals.findOne()
+    const deals = await Deals.findOne().sort({ createdAt: -1 })
     .populate({path: "mostPopular"})
     .populate({path: "bestDeal"})
     .populate({path: "newest"})

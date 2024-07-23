@@ -501,7 +501,7 @@ exports.deleteSubCategory = asyncHandler(async (req, res) => {
 // Get all categories
 exports.allCategories = asyncHandler(async (req, res) => {
   
-  const categories = await Category.find()
+  const categories = await Category.find().sort({ createdAt: -1 })
       .populate({
           path: 'products',
           model: 'Product'

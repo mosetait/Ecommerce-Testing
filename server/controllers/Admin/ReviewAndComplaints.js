@@ -4,11 +4,28 @@ const asyncHandler = require("../../middlewares/asyncHandler");
 const ErrorHandler = require("../../utils/errorHandler");
 const Customer = require("../../models/Customer");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+
+
+
+// delte from cloudinary
+const deleteFileFromCloudinary = async (publicId) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.destroy(publicId, { resource_type: 'raw' }, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 
 // fetch all requests
 exports.allRequests = asyncHandler( async (req,res,next) => {
 
-    const requests = await RepairRequest.find()
+    const requests = await RepairRequest.find().sort({ createdAt: -1 })
     .populate("customer")
     .populate("product")
     .populate("assignedTo")
@@ -138,7 +155,7 @@ exports.deleteRequest = asyncHandler(async (req, res, next) => {
 
 // Fetch all complaints
 exports.allComplaints = asyncHandler(async (req, res,next) => {
-    const complaints = await Complaint.find()
+    const complaints = await Complaint.find().sort({ createdAt: -1 })
         .populate('customer')
         .populate('product')
         .populate('technician');
@@ -244,6 +261,16 @@ exports.deleteComplaint = asyncHandler(async (req, res, next) => {
 
     customer.complaints = customer.complaints.filter(complaintId => !complaintId.equals(id));
     await customer.save();
+
+
+    // Delete the bill from Cloudinary
+    if (complaint.bill && complaint.bill.publicId) {
+        try {
+            await deleteFileFromCloudinary(complaint.bill.publicId);
+        } catch (error) {
+            return next(new ErrorHandler("Failed to delete bill from Cloudinary", 500));
+        }
+    }
 
     // Delete the complaint
     await complaint.deleteOne();

@@ -16,42 +16,37 @@ const mongoose = require("mongoose")
 
 
 // contact us
-exports.contactUs = asyncHandler( async (req,res) => {
+exports.contactUs = asyncHandler(async (req, res) => {
 
     const {
-        name , 
+        name, 
         contactNumber, 
-        email , 
-        subject , 
+        email, 
+        subject, 
         message
     } = req.body.formData;
 
-    if(!name || !email || !subject || !message){
+    if (!name || !email || !subject || !message) {
         return res.status(401).json({
             message: "Please fill all required fields.",
             success: false
-        })
+        });
     }
 
     const newContact = await ContactUs.create({
-        name , 
-        contactNumber , 
-        email , 
-        subject , 
+        name, 
+        contactNumber, 
+        email, 
+        subject, 
         message
-    })
+    });
+
+    // Emit the new contact event
+    const io = req.app.get('io');
+    io.emit('newContact', newContact);
 
     // send email
-    try{
-
-        // To ourself
-        // await mailSender(
-        //    email,
-        //    "New Contact Us",
-        //    contactEmailForOurself(email , name , message , contactNumber) 
-        // )
-
-
+    try {
         // To customer
         await mailSender(
             email,
@@ -62,19 +57,18 @@ exports.contactUs = asyncHandler( async (req,res) => {
                 message,
                 contactNumber
             )
-        )
+        );
+    } catch (error) {
+        throw Error(error);
     }
-    catch(error){
-        throw Error(error)
-    }
-
 
     return res.status(200).json({
         message: "Email sent. We will get back to you soon.",
-        success: false
-    })
+        success: true
+    });
 
-})
+});
+
 
 
 
@@ -185,9 +179,15 @@ exports.registerComplaint = asyncHandler(async (req, res) => {
     await customer.save();
 
 
+    // Populate the necessary fields in the newRequest
+    const populatedComplaint = await Complaint.findById(newComplaint._id)
+    .populate('customer') // populate customer details (adjust the fields as necessary)
+    .populate('product'); // populate product details (adjust the fields as necessary)
+
+
     // Emit the new complaint event
     const io = req.app.get('io');
-    io.emit('newComplaint', newComplaint);
+    io.emit('newComplaint', populatedComplaint);
 
 
     // send complaint registration email
@@ -219,6 +219,7 @@ exports.registerComplaint = asyncHandler(async (req, res) => {
 
 
 
+
 // fetch complaint status
 exports.fetchSingleComplaint = asyncHandler( async (req,res) => {
 
@@ -243,6 +244,7 @@ exports.fetchSingleComplaint = asyncHandler( async (req,res) => {
         complaint
     })
 })
+
 
 
 
@@ -314,23 +316,28 @@ exports.repairRequest = asyncHandler( async (req,res) => {
 
     // Create a new complaint with the bill details
     const newRequest = await RepairRequest.create({
-        customer : req.user.id,
-        product : productId,
+        customer: req.user.id,
+        product: productId,
         productId,
         description,
         contactNumber,
         address,
     });
 
-
-    // add complaints to customer's complaints array
+    // Add complaints to customer's complaints array
     customer.repairRequests.push(newRequest._id);
     await customer.save();
 
+    // Populate the necessary fields in the newRequest
+    const populatedRequest = await RepairRequest.findById(newRequest._id)
+        .populate('customer') // populate customer details (adjust the fields as necessary)
+        .populate('product'); // populate product details (adjust the fields as necessary)
 
-    // Emit the new complaint event
+
+    // Emit the new complaint event with the populated data
     const io = req.app.get('io');
-    io.emit('newRequest', newRequest);
+    io.emit('newRequest', populatedRequest);
+
 
 
     // send complaint registration email
@@ -395,20 +402,24 @@ exports.fetchSingleRequest = asyncHandler( async (req,res) => {
 
 
 // popup form 
-exports.popupForm = asyncHandler( async (req,res) => {
+exports.popupForm = asyncHandler(async (req, res) => {
 
-    const {fullName , email , phone , inquiry} = req.body.formData;
-    
-    if(!fullName || !email || !phone || !inquiry){
+    const { fullName, email, phone, inquiry } = req.body.formData;
+
+    if (!fullName || !email || !phone || !inquiry) {
         return res.status(401).json({
             message: "Please provide all details",
             success: false
-        })
+        });
     }
 
     const newPopupForm = await PopupForm.create({
-        fullName,email,phone,inquiry
+        fullName, email, phone, inquiry
     });
+
+    // Emit the new popup form event
+    const io = req.app.get('io');
+    io.emit('newPopupForm', newPopupForm);
 
     const emailTemplate = `Inquiry From Moseta.in<br>
     <br>
@@ -416,26 +427,23 @@ exports.popupForm = asyncHandler( async (req,res) => {
     Full Name: ${fullName}<br>
     Phone No.: ${phone}<br>
     Inquiry: ${inquiry}<br>`;
-    
-    
 
-        // Send email
-        try {
-            const mailResponse = await mailSender(
-                "dhyanisaksham3@gmail.com",
-                "Inquiry | Moseta website",
-                emailTemplate
-            );
-            console.log(mailResponse);
-        } catch (error) {
-            console.log("Error occurred while sending email: ", error);
-            throw error;
-        }
+    // Send email
+    try {
+        const mailResponse = await mailSender(
+            "dhyanisaksham3@gmail.com",
+            "Inquiry | Moseta website",
+            emailTemplate
+        );
 
+    } catch (error) {
+        console.log("Error occurred while sending email: ", error);
+        throw error;
+    }
 
-        return res.status(200).json({
-            message: "Form Submitted",
-            success: true
-        })
+    return res.status(200).json({
+        message: "Form Submitted",
+        success: true
+    });
 
-})
+});
