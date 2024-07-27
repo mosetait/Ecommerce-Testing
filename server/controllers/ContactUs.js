@@ -80,7 +80,10 @@ exports.registerComplaint = asyncHandler(async (req, res) => {
         productId,
         nature,
         description,
-        contactNumber
+        contactNumber,
+        address,
+        pincode,
+        serialNumber
     } = req.body;
 
 
@@ -165,6 +168,8 @@ exports.registerComplaint = asyncHandler(async (req, res) => {
         customer : req.user.id,
         product : productId,
         nature,
+        address: address + " " + pincode,
+        serialNumber,
         description,
         bill: {
             publicId: uploadResult.public_id,
@@ -258,9 +263,10 @@ exports.repairRequest = asyncHandler( async (req,res) => {
         description,
         contactNumber,
         address,
+        pincode,
+        serialNumber,
 
     } = req.body.formData;
-
 
 
     if(!productId || !description || !contactNumber || !address){
@@ -321,7 +327,8 @@ exports.repairRequest = asyncHandler( async (req,res) => {
         productId,
         description,
         contactNumber,
-        address,
+        address: address + " " + pincode ,
+        serialNumber,
     });
 
     // Add complaints to customer's complaints array

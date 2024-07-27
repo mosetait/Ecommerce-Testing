@@ -14,6 +14,7 @@ router.get('/auth/google',
 router.get('/auth/google/callback',
     passport.authenticate('google', { session: false }), // Ensure no session is created
     async (req, res) => {
+    
         try {
             if (req.user) {
 

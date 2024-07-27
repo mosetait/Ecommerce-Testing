@@ -3,6 +3,7 @@ const Decimal128 = mongoose.Schema.Types.Decimal128;
 const { v4: uuidv4 } = require('uuid'); // Import UUID v4 generator
 
 const orderSchema = new mongoose.Schema({
+    
     orderId: {
         type: String,
         default: uuidv4, // Generate UUID v4 as default value
@@ -53,7 +54,6 @@ const orderSchema = new mongoose.Schema({
 
     paidAt: {
         type: Date,
-        required: true
     },
 
     shippingAddress: {
@@ -63,7 +63,7 @@ const orderSchema = new mongoose.Schema({
 
     paymentStatus: {
         type: String,
-        enum: ["pending", "paid"],
+        enum: ["pending", "paid" , "Cash on delivery"],
         default: "pending"
     },
 
@@ -76,6 +76,11 @@ const orderSchema = new mongoose.Schema({
     discountCoupon: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "DiscountCoupon"
+    },
+
+    invoice: {
+        publicId: String,
+        secureUrl: String
     },
 
     deliveredAt: Date,

@@ -24,6 +24,14 @@ const complaintSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    address:{
+        type: String,
+        required: true
+    },
+    serialNumber:{
+        type: String,
+        required: true
+    },
     status: {
         type: String,
         enum: ["pending", "resolved", "closed"],

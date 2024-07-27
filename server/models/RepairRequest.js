@@ -20,6 +20,11 @@ const repairRequestSchema = new mongoose.Schema({
         required: true
     },
 
+    serialNumber:{
+        type: String,
+        required: true
+    },
+
     description: {
         type: String,
         required: true

@@ -1,4 +1,4 @@
-exports.orderPlacedEmail = ({ name, shippingInfo, orderItems, totalPrice, orderId }) => {
+exports.orderPlacedEmail = (name, shippingInfo, orderItems, totalPrice, orderId) => {
     
     return `<!DOCTYPE html>
     <html>

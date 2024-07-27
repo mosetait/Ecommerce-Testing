@@ -11,6 +11,7 @@ const SubCategory = require("../../models/SubCategory");
 // Create Product ---ADMIN
 exports.createProduct = asyncHandler(async (req, res) => {
     // Get all required fields from request body
+ 
     let {
         name,
         description,

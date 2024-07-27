@@ -32,6 +32,16 @@ const paymentSchema = new mongoose.Schema({
     required: true,
   },
 
+  items:[
+    {
+      type: Object  
+    }
+  ],
+
+  deliveryAddress:{
+    type: Object
+  },
+
   currency: {
     type: String,
     required: true,
